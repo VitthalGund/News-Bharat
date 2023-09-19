@@ -296,7 +296,7 @@ export class News extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            articles: [],
+            articles: this.articlesOffline.articles,
             page: 1,
             totalResults: 0,
             loading: true,
@@ -323,9 +323,22 @@ export class News extends Component {
             this.props.displayAlert("Api key is Exhausted", "info");
             this.api = prompt("Enter your Api key to continue");
         }
-        let data = await res.json();
-        this.props.setProgress(70);
-        return data;
+        if (res.ok) {
+            let data = await res.json();
+            this.props.setProgress(70);
+            if (data.totalResults >= 1 && data.articles >= 1) {
+                this.articlesOffline = data;
+                return data;
+            } else {
+                return {
+                    ...this.articlesOffline
+                }
+            }
+        } else {
+            return {
+                ...this.articlesOffline
+            }
+        }
     }
     async componentDidMount() {
         this.buttonType();
@@ -333,12 +346,16 @@ export class News extends Component {
         //     this.url = `https://newsapi.org/v2/top-headlines?q=${this.props.q}&ountry=${this.props.country}`
         // }
         let data = await this.fetchData(`&category=${this.props.category}&pageSize=${this.props.pageSize}&page=${this.state.page}&apiKey=` + this.api);
+        console.log(data);
         this.setState({
             articles: data.articles,
             totalResults: this.state.totalResults + data.totalResults,
             loading: false
         });
         this.props.setProgress(100);
+    }
+    getLength() {
+        return this.state.articles.length;
     }
 
     // These two buttons are removed
@@ -358,28 +375,32 @@ export class News extends Component {
     // }
 
     fetchMoreData = async () => {
-        // this.props.setProgress(0);
-        let res = await fetch(this.url + `&category=${this.props.category}&pageSize=${this.props.pageSize}&page=${this.state.page + 1}&apiKey=` + this.api);
+        this.props.setProgress(0);
+        let res = await fetch(this.url + `&category=${this.props.category}&pageSize=${this.props.pageSize}&page=${this.state.page + 1}&apiKey=${this.api}`);
         this.props.setProgress(40);
         if (res.status === "error" && res.code === "apiKeyExhausted") {
             this.props.displayAlert("Api key is Exhausted", "info");
             this.api = prompt("Enter your Api key to continue");
         }
-        let data = await res.json();
-        this.props.setProgress(70);
-        if (data.totalResults > 1 && data.articles.length > 1) {
-            this.setState({
-                page: this.state.page + 1,
-                articles: this.state.articles.concat(data.articles)
-            })
-            this.props.setProgress(100);
-            this.props.displayAlert("Here is the news related to: " + this.props.q, "success");
-        } else {
-            // this.props.setProgress(0);
-            this.props.displayAlert("Scroll down for more news!", "warning");
+        if (res.ok) {
+            let data = await res.json();
+            this.props.setProgress(70);
+            if (data.totalResults > 1 && data.articles.length > 1) {
+                this.setState({
+                    page: this.state.page + 1,
+                    articles: this.state.articles.concat(data.articles)
+                })
+                this.props.setProgress(100);
+                this.props.displayAlert("Here is the news related to: " + this.props.q, "success");
+            } else {
+                // this.props.setProgress(0);
+                this.props.displayAlert("Scroll down for more news!", "warning");
 
+            }
+            this.props.setProgress(100);
+        } else {
+            this.props.displayAlert("Search not found: " + this.props.q, "info");
         }
-        this.props.setProgress(100);
     }
 
     buttonType = () => {
@@ -423,25 +444,36 @@ export class News extends Component {
                 this.props.setProgress(0);
                 let res = await fetch(this.url + `&pageSize=${this.props.pageSize}&apiKey=${this.api}`);
                 this.props.setProgress(40);
-                let data = await res.json();
-                this.props.setProgress(70);
-                console.log(this.url + `&pageSize=${this.props.pageSize}&page=${this.state.page + 1}&apiKey=${this.api}`)
-                console.log(data);
-                if (data.totalResults > 1 && data.articles.length > 1) {
+                console.log(res)
+                if (res.ok) {
+                    let data = await res.json();
+                    this.props.setProgress(70);
+                    console.log(this.url + `&pageSize=${this.props.pageSize}&page=${this.state.page + 1}&apiKey=${this.api}`)
+                    console.log(data);
+                    if (data.totalResults > 1 && data.articles.length > 1) {
+                        this.setState({
+                            page: this.state.page + 1,
+                            articles: data.articles
+                        })
+                        this.props.setProgress(100);
+                        this.props.displayAlert("Here is the news related to: " + this.props.q, "success");
+                        < Alert alert={this.state.alert} />
+                        this.url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}`
+                    } else {
+                        console.log("false");
+                        // this.props.setProgress(0);
+                        this.props.displayAlert("Scroll down for more news!", "warning");
+                        < Alert alert={this.state.alert} />
+                        console.log("false");
+                    }
+                } else {
                     this.setState({
                         page: this.state.page + 1,
-                        articles: data.articles
+                        articles: this.articlesOffline.articles
                     })
                     this.props.setProgress(100);
                     this.props.displayAlert("Here is the news related to: " + this.props.q, "success");
                     < Alert alert={this.state.alert} />
-                    this.url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}`
-                } else {
-                    console.log("false");
-                    // this.props.setProgress(0);
-                    this.props.displayAlert("Scroll down for more news!", "warning");
-                    < Alert alert={this.state.alert} />
-                    console.log("false");
                 }
             } catch (error) {
                 console.log(error)
@@ -455,9 +487,9 @@ export class News extends Component {
                 <h2 className='text-center' style={{ margin: "80px 0px 30px 0px" }}>NewsMonkey - Top {this.capitalize(this.props.category)} HeadLines</h2>
                 {this.state.loading && <Loading />}
                 <InfiniteScroll
-                    dataLength={this.state.articles.length}
+                    dataLength={this.getLength()}
                     next={this.fetchMoreData}
-                    hasMore={this.state.articles.length !== this.state.totalResults}
+                    hasMore={this.state.articles.length !== this.state.articles.totalResults}
                     loader={<Loading />}
                 >
                     <div className="container" style={{
