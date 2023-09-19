@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/News-Bharat/static/css/main.31d6cfe0.css",
+    "main.js": "/News-Bharat/static/js/main.24b59e2b.js",
+    "static/js/787.4c026eef.chunk.js": "/News-Bharat/static/js/787.4c026eef.chunk.js",
+    "static/media/Magnify-1s-200px.gif": "/News-Bharat/static/media/Magnify-1s-200px.ca92b9d6e4d64d879910.gif",
+    "static/media/defaultImge.jpg": "/News-Bharat/static/media/defaultImge.9fd1af609634d40811b2.jpg",
+    "index.html": "/News-Bharat/index.html",
+    "main.24b59e2b.js.map": "/News-Bharat/static/js/main.24b59e2b.js.map",
+    "787.4c026eef.chunk.js.map": "/News-Bharat/static/js/787.4c026eef.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.31d6cfe0.css",
+    "static/js/main.24b59e2b.js"
+  ]
+}
