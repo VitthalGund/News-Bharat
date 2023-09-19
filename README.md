@@ -46,6 +46,19 @@ To run this project locally or contribute to its development, follow these steps
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+2. Change to the project directory:
+```bash
+cd News-Bharat
+
+4. Install the project dependencies:
+```bash
+npm install
+
+5. Start the development server:
+```bash
+npm start
+
+Open your web browser and navigate to http://localhost:3000 to access News-Bharat.
 ## Available Scripts
 
 In the project directory, you can run:
