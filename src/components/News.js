@@ -444,7 +444,6 @@ export class News extends Component {
                 this.props.setProgress(0);
                 let res = await fetch(this.url + `&pageSize=${this.props.pageSize}&apiKey=${this.api}`);
                 this.props.setProgress(40);
-                console.log(res)
                 if (res.ok) {
                     let data = await res.json();
                     this.props.setProgress(70);
@@ -467,6 +466,8 @@ export class News extends Component {
                         console.log("false");
                     }
                 } else {
+                    this.props.displayAlert("Api key is Exhausted", "info");
+                    this.api = prompt("Enter your Api key to continue");
                     this.setState({
                         page: this.state.page + 1,
                         articles: this.articlesOffline.articles
@@ -484,7 +485,7 @@ export class News extends Component {
         return (
             // <div className="container">
             <>
-                <h2 className='text-center' style={{ margin: "80px 0px 30px 0px" }}>NewsMonkey - Top {this.capitalize(this.props.category)} HeadLines</h2>
+                <h2 className='text-center' style={{ margin: "80px 0px 30px 0px" }}>News-Bharat - Top {this.capitalize(this.props.category)} HeadLines</h2>
                 {this.state.loading && <Loading />}
                 <InfiniteScroll
                     dataLength={this.getLength()}
